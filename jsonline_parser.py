@@ -8,23 +8,32 @@ import time
 
 # Global Variables
 FOLDER_TO_TRACK = "C:/Users/alehu/Desktop/JSON_Input/"
-FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSONLINES_Output/"
+JSON_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSON_Output/"
+JSONLINES_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSONLINES_Output/"
+
+
+def changeFormatting(fileToConvert, newDestination):
+    with open(fileToConvert, "r") as f:
+        json_data = json.load(f)
+
+    with jsonlines.open(newDestination, "w") as writer:
+        writer.write_all(json_data)
 
 
 # Automation Event Handler
 class MyHandler(FileSystemEventHandler):
     def on_created(self, event):
         for filename in os.listdir(FOLDER_TO_TRACK):
-
             src = FOLDER_TO_TRACK + "/" + filename
-            new_destination = FOLDER_DESTINATION + "/" + filename
+            json_new_destination = JSON_FOLDER_DESTINATION + "/" + filename
 
-            changeFormatting(src, new_destination)
+            # Change file extension from json to jl
+            base = os.path.splitext(filename)[0]
+            jsonlines_new_destination = JSONLINES_FOLDER_DESTINATION + base + ".jl"
 
-            file_done = False
-            file_size = -1
+            changeFormatting(src, jsonlines_new_destination)
 
-            # os.rename(src, new_destination)
+            os.rename(src, json_new_destination)
 
 
 event_handler = MyHandler()
@@ -38,14 +47,3 @@ try:
 except KeyboardInterrupt:
     observer.stop()
 observer.join()
-
-
-def changeFormatting(fileToConvert, newFileName):
-    # x = input("Type in the name of a file you want to convert: ")
-    # fileToConvert = "./" + x
-
-    with open(fileToConvert, "r") as f:
-        json_data = json.load(f)
-
-    with jsonlines.open(newFileName, "w") as writer:
-        writer.write_all(json_data)
