@@ -12,14 +12,6 @@ JSON_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSON_Output/"
 JSONLINES_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSONLINES_Output/"
 
 
-def changeFormatting(fileToConvert, newDestination):
-    with open(fileToConvert, "r") as f:
-        json_data = json.load(f)
-
-    with jsonlines.open(newDestination, "w") as writer:
-        writer.write_all(json_data)
-
-
 # Automation Event Handler
 class MyHandler(FileSystemEventHandler):
     def on_created(self, event):
@@ -31,9 +23,16 @@ class MyHandler(FileSystemEventHandler):
             base = os.path.splitext(filename)[0]
             jsonlines_new_destination = JSONLINES_FOLDER_DESTINATION + base + ".jl"
 
-            changeFormatting(src, jsonlines_new_destination)
+            self.changeFormatting(src, jsonlines_new_destination)
 
             os.rename(src, json_new_destination)
+
+    def changeFormatting(self, fileToConvert, newDestination):
+        with open(fileToConvert, "r") as f:
+            json_data = json.load(f)
+
+        with jsonlines.open(newDestination, "w") as writer:
+            writer.write_all(json_data)
 
 
 event_handler = MyHandler()
