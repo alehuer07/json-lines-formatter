@@ -8,7 +8,8 @@ import time
 
 # Global Variables
 FOLDER_TO_TRACK = "C:/Users/alehu/Desktop/JSON_Input/"
-FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSONLINES_Output/"
+JSON_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSON_Output/"
+JSONLINES_FOLDER_DESTINATION = "C:/Users/alehu/Desktop/JSONLINES_Output/"
 
 
 # Automation Event Handler
@@ -16,20 +17,22 @@ class MyHandler(FileSystemEventHandler):
     def on_created(self, event):
         for filename in os.listdir(FOLDER_TO_TRACK):
             src = FOLDER_TO_TRACK + "/" + filename
-            new_destination = FOLDER_DESTINATION + "/" + filename
-            file_done = False
-            file_size = -1
+            json_new_destination = JSON_FOLDER_DESTINATION + "/" + filename
 
-            os.rename(src, new_destination)
-            # while file_size != os.path.getsize(FOLDER_TO_TRACK):
-            #     file_size = os.path.getsize(FOLDER_DESTINATION)
-            #     time.sleep(1)
-            # while not file_done:
-            #     try:
-            #         os.rename(src, new_destination)
-            #         file_done = True
-            #     except:
-            #         return True
+            # Change file extension from json to jl
+            base = os.path.splitext(filename)[0]
+            jsonlines_new_destination = JSONLINES_FOLDER_DESTINATION + base + ".jl"
+
+            self.changeFormatting(src, jsonlines_new_destination)
+
+            os.rename(src, json_new_destination)
+
+    def changeFormatting(self, fileToConvert, newDestination):
+        with open(fileToConvert, "r") as f:
+            json_data = json.load(f)
+
+        with jsonlines.open(newDestination, "w") as writer:
+            writer.write_all(json_data)
 
 
 event_handler = MyHandler()
@@ -43,13 +46,3 @@ try:
 except KeyboardInterrupt:
     observer.stop()
 observer.join()
-
-# def changeFormatting():
-#     x = input("Type in the name of a file you want to convert: ")
-#     fileToConvert = "./" + x
-
-#     with open(fileToConvert, "r") as f:
-#         json_data = json.load(f)
-
-#     with jsonlines.open("./json_lines.jl", "w") as writer:
-#         writer.write_all(json_data)
